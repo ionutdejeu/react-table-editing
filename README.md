@@ -1,5 +1,5 @@
 # React Table editing
- 
+
 ## Features
 
 - Resizing columns
@@ -36,7 +36,7 @@ Contributions are welcome! Feel free to pick an item from the roadmap below or o
 ## Roadmap
 
 - [x] Support for virtualized rows
-- [ ] Migrate to new FloatUI library, removing usage for popper js lib  
+- [ ] Migrate to new FloatUI library, removing usage for popper js lib
 - [ ] Date data-type
 - [ ] Multi-Select data-type
 - [ ] Checkbox data-type
