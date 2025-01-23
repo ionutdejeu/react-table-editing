@@ -147,6 +147,6 @@ const Table: React.FC<TableProps> = ({
       </div>
     </div>
   );
-}
+};
 
 export default Table;

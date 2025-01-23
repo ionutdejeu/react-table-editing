@@ -20,9 +20,9 @@ const DataTypeIcon: React.FC<DataTypeIconProps> = ({ dataType }) => {
       default:
         return null;
     }
-  }
+  };
 
   return getPropertyIcon(dataType);
-}
+};
 
 export default DataTypeIcon;

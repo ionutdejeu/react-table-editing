@@ -7,7 +7,10 @@ interface AddColumnHeaderProps {
   dataDispatch: React.Dispatch<any>;
 }
 
-const AddColumnHeader: React.FC<AddColumnHeaderProps> = ({ getHeaderProps, dataDispatch }) => {
+const AddColumnHeader: React.FC<AddColumnHeaderProps> = ({
+  getHeaderProps,
+  dataDispatch,
+}) => {
   return (
     <div {...getHeaderProps()} className="th noselect d-inline-block">
       <div
@@ -26,6 +29,6 @@ const AddColumnHeader: React.FC<AddColumnHeaderProps> = ({ getHeaderProps, dataD
       </div>
     </div>
   );
-}
+};
 
 export default AddColumnHeader;

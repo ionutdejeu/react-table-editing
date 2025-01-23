@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { usePopper } from 'react-popper';
 import { Constants } from '../utils';
 import AddColumnHeader from './AddColumnHeader';
 import DataTypeIcon from './DataTypeIcon';
-import { autoUpdate, useFloating } from '@floating-ui/react';
+import HeaderMenu from './HeaderMenu';
 
 interface HeaderProps {
   column: {
@@ -25,13 +26,18 @@ const Header: React.FC<HeaderProps> = ({
   const [showHeaderMenu, setShowHeaderMenu] = useState<boolean>(
     created || false
   );
-  const [_, setHeaderMenuAnchorRef] = useState<HTMLDivElement | null>(null);
-  const { floatingStyles, refs } = useFloating<HTMLButtonElement>({
-    open: showHeaderMenu,
-    onOpenChange: setShowHeaderMenu,
-    middleware: [],
-    whileElementsMounted: autoUpdate,
-  });
+  const [headerMenuAnchorRef, setHeaderMenuAnchorRef] =
+    useState<HTMLDivElement | null>(null);
+  const [headerMenuPopperRef, setHeaderMenuPopperRef] =
+    useState<HTMLDivElement | null>(null);
+  const { styles, attributes } = usePopper(
+    headerMenuAnchorRef,
+    headerMenuPopperRef,
+    {
+      placement: 'bottom',
+      strategy: 'absolute',
+    }
+  );
 
   useEffect(() => {
     if (created) {
@@ -68,9 +74,16 @@ const Header: React.FC<HeaderProps> = ({
           <div className="overlay" onClick={() => setShowHeaderMenu(false)} />
         )}
         {showHeaderMenu && (
-          <pre ref={refs} style={floatingStyles}>
-            Header Menu
-          </pre>
+          <HeaderMenu
+            label={label}
+            dataType={dataType}
+            popper={{ ...headerMenuPopperRef }}
+            popperRef={setHeaderMenuPopperRef}
+            dataDispatch={dataDispatch}
+            setSortBy={setSortBy}
+            columnId={id}
+            setShowHeaderMenu={setShowHeaderMenu}
+          />
         )}
       </>
     );

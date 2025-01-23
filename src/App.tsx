@@ -232,6 +232,6 @@ const App: React.FC = () => {
       <div id="popper-portal"></div>
     </div>
   );
-}
+};
 
 export default App;

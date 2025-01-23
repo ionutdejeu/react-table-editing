@@ -20,15 +20,18 @@ const NumberCell: React.FC<NumberCellProps> = ({
   rowIndex,
   dataDispatch,
 }) => {
-  const [value, setValue] = useState<ValueState>({ value: initialValue, update: false });
+  const [value, setValue] = useState<ValueState>({
+    value: initialValue,
+    update: false,
+  });
 
   const onChange = (e: ContentEditableEvent) => {
     setValue({ value: e.target.value, update: false });
-  }
+  };
 
   const onBlur = () => {
     setValue(old => ({ value: old.value, update: true }));
-  }
+  };
 
   useEffect(() => {
     setValue({ value: initialValue, update: false });
@@ -54,6 +57,6 @@ const NumberCell: React.FC<NumberCellProps> = ({
       className="data-input text-align-right"
     />
   );
-}
+};
 
 export default NumberCell;

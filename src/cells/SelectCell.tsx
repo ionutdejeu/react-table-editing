@@ -5,8 +5,8 @@ import Badge from '../Badge';
 import { grey } from '../colors';
 import PlusIcon from '../img/Plus';
 import { ActionTypes, randomColor } from '../utils';
-import {computePosition, autoPlacement} from '@floating-ui/dom';
-
+import { computePosition, autoPlacement } from '@floating-ui/dom';
+import { useFloating } from '@floating-ui/react';
 
 interface Option {
   label: string;
@@ -32,9 +32,12 @@ const SelectCell: React.FC<SelectCellProps> = ({
   const [selectPop, setSelectPop] = useState<HTMLDivElement | null>(null);
   const [showSelect, setShowSelect] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
-  const [addSelectRef, setAddSelectRef] = useState<HTMLInputElement | null>(null);
- 
- 
+  const [addSelectRef, setAddSelectRef] = useState<HTMLInputElement | null>(
+    null
+  );
+
+  const { refs } = useFloating({});
+
   const { styles, attributes } = usePopper(selectRef, selectPop, {
     placement: 'bottom-start',
     strategy: 'fixed',
@@ -184,6 +187,6 @@ const SelectCell: React.FC<SelectCellProps> = ({
         )}
     </>
   );
-}
+};
 
 export default SelectCell;
