@@ -2,22 +2,18 @@ import React from 'react';
 import { ActionTypes, DataTypes, shortId } from '../utils';
 import DataTypeIcon from './DataTypeIcon';
 
-interface TypesMenuProps {
-  popper: any; // Replace 'any' with the correct type if known
-  popperRef: React.RefObject<HTMLDivElement>;
+interface FloatTypesMenuProps {
   dataDispatch: React.Dispatch<any>;
   setShowTypeMenu: React.Dispatch<React.SetStateAction<boolean>>;
   onClose: () => void;
-  columnId: string;
+  columnId: string | number;
 }
 
 const getLabel = (type: string): string => {
   return type.charAt(0).toUpperCase() + type.slice(1);
 };
 
-const TypesMenu: React.FC<TypesMenuProps> = ({
-  popper,
-  popperRef,
+const FloatTypesMenu: React.FC<FloatTypesMenuProps> = ({
   dataDispatch,
   setShowTypeMenu,
   onClose,
@@ -68,12 +64,9 @@ const TypesMenu: React.FC<TypesMenuProps> = ({
   return (
     <div
       className="shadow-5 bg-white border-radius-md list-padding"
-      ref={popperRef}
       onMouseEnter={() => setShowTypeMenu(true)}
       onMouseLeave={() => setShowTypeMenu(false)}
-      {...popper.attributes.popper}
       style={{
-        ...popper.styles.popper,
         width: 200,
         backgroundColor: 'white',
         zIndex: 4,
@@ -89,4 +82,4 @@ const TypesMenu: React.FC<TypesMenuProps> = ({
   );
 };
 
-export default TypesMenu;
+export default FloatTypesMenu;

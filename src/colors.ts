@@ -1,4 +1,4 @@
-export function grey(value: number): string | undefined {
+export function grey(value: number): string {
   const reference: { [key: number]: string } = {
     50: '#fafafa',
     100: '#f5f5f5',

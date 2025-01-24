@@ -20,15 +20,18 @@
     "build": "vite build",
     "serve": "vite preview",
     "prepare": "husky install",
-    "lint": "prettier --check . && eslint src/**/*.jsx",
+    "lint": "prettier --check . && eslint src/**/*.tsx",
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^3.0.0",
     "eslint": "^8.30.0",
     "eslint-config-react-app": "^7.0.1",
     "husky": "^6.0.0",
     "prettier": "^2.3.1",
+    "typescript": "^5.7.3",
     "vite": "4.x",
     "vite-plugin-eslint": "^1.8.1"
   },

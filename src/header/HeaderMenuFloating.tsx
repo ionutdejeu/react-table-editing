@@ -5,42 +5,41 @@ import ArrowLeftIcon from '../img/ArrowLeft';
 import ArrowRightIcon from '../img/ArrowRight';
 import TrashIcon from '../img/Trash';
 import { grey } from '../colors';
-import TypesMenu from './TypesMenu';
-import { usePopper } from 'react-popper';
 import { ActionTypes, shortId } from '../utils';
 import DataTypeIcon from './DataTypeIcon';
-
-interface HeaderMenuProps {
+import {
+  useDismiss,
+  UseFloatingReturn,
+  useFocus,
+  useHover,
+  useInteractions,
+  UseInteractionsReturn,
+} from '@floating-ui/react';
+import FloatTypesMenu from './FloatTypesMenu';
+interface HeaderMenuFloatingProps {
   label: string;
   dataType: string;
   columnId: string | number;
   setSortBy: (sortBy: { id: string | number; desc: boolean }[]) => void;
-  popper: any; // Adjust this to the correct type if known
-  popperRef: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>;
+  floating: UseFloatingReturn;
+  floatingProps: UseInteractionsReturn['getFloatingProps'];
   dataDispatch: React.Dispatch<any>;
   setShowHeaderMenu: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const HeaderMenu: React.FC<HeaderMenuProps> = ({
+const HeaderMenuFloating: React.FC<HeaderMenuFloatingProps> = ({
   label,
   dataType,
   columnId,
   setSortBy,
-  popper,
-  popperRef,
+  floating,
+  floatingProps,
   dataDispatch,
   setShowHeaderMenu,
 }) => {
   const [inputRef, setInputRef] = useState<HTMLInputElement | null>(null);
   const [header, setHeader] = useState<string>(label);
-  const [typeReferenceElement, setTypeReferenceElement] =
-    useState<HTMLButtonElement | null>(null);
-  const [typePopperElement, setTypePopperElement] =
-    useState<HTMLDivElement | null>(null);
-  const typePopper = usePopper(typeReferenceElement, typePopperElement, {
-    placement: 'right',
-    strategy: 'fixed',
-  });
+
   const [showTypeMenu, setShowTypeMenu] = useState<boolean>(false);
 
   const onTypeMenuClose = () => {
@@ -158,9 +157,9 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
 
   return (
     <div
-      ref={popperRef}
-      style={{ ...popper.styles.popper, zIndex: 3 }}
-      {...popper.attributes.popper}
+      ref={floating.refs.setFloating}
+      style={{ ...floating.floatingStyles, zIndex: 3 }}
+      {...floatingProps()}
     >
       <div
         className="bg-white shadow-5 border-radius-md"
@@ -196,7 +195,6 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
             type="button"
             onMouseEnter={() => setShowTypeMenu(true)}
             onMouseLeave={() => setShowTypeMenu(false)}
-            ref={setTypeReferenceElement}
           >
             <span className="svg-icon svg-text icon-margin">
               <DataTypeIcon dataType={dataType} />
@@ -204,9 +202,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
             <span className="text-transform-capitalize">{dataType}</span>
           </button>
           {showTypeMenu && (
-            <TypesMenu
-              popper={typePopper}
-              popperRef={setTypePopperElement}
+            <FloatTypesMenu
               onClose={onTypeMenuClose}
               setShowTypeMenu={setShowTypeMenu}
               columnId={columnId}
@@ -235,4 +231,4 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
   );
 };
 
-export default HeaderMenu;
+export default HeaderMenuFloating;

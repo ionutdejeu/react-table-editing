@@ -8,7 +8,7 @@ interface TypesMenuProps {
   dataDispatch: React.Dispatch<any>;
   setShowTypeMenu: React.Dispatch<React.SetStateAction<boolean>>;
   onClose: () => void;
-  columnId: string;
+  columnId: string | number;
 }
 
 const getLabel = (type: string): string => {
