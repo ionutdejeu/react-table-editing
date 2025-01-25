@@ -7,15 +7,9 @@ import TrashIcon from '../img/Trash';
 import { grey } from '../colors';
 import { ActionTypes, shortId } from '../utils';
 import DataTypeIcon from './DataTypeIcon';
-import {
-  useDismiss,
-  UseFloatingReturn,
-  useFocus,
-  useHover,
-  useInteractions,
-  UseInteractionsReturn,
-} from '@floating-ui/react';
+import { UseFloatingReturn, UseInteractionsReturn } from '@floating-ui/react';
 import FloatTypesMenu from './FloatTypesMenu';
+
 interface HeaderMenuFloatingProps {
   label: string;
   dataType: string;
@@ -202,12 +196,14 @@ const HeaderMenuFloating: React.FC<HeaderMenuFloatingProps> = ({
             <span className="text-transform-capitalize">{dataType}</span>
           </button>
           {showTypeMenu && (
-            <FloatTypesMenu
-              onClose={onTypeMenuClose}
-              setShowTypeMenu={setShowTypeMenu}
-              columnId={columnId}
-              dataDispatch={dataDispatch}
-            />
+            <>
+              <FloatTypesMenu
+                onClose={onTypeMenuClose}
+                setShowTypeMenu={setShowTypeMenu}
+                columnId={columnId}
+                dataDispatch={dataDispatch}
+              />
+            </>
           )}
         </div>
         <div style={{ borderTop: `2px solid ${grey(200)}` }} />

@@ -2,14 +2,14 @@ import React from 'react';
 import { DataTypes } from '../utils';
 import TextCell from './TextCell';
 import NumberCell from './NumberCell';
-import SelectCell from './SelectCell';
+import SelectCellFloating from './SelectCellFloating';
 
 export default function Cell({
   value: initialValue,
   row: { index },
   column: { id, dataType, options },
   dataDispatch,
-}) {
+}: any) {
   function getCellElement() {
     switch (dataType) {
       case DataTypes.TEXT:
@@ -32,7 +32,7 @@ export default function Cell({
         );
       case DataTypes.SELECT:
         return (
-          <SelectCell
+          <SelectCellFloating
             initialValue={initialValue}
             options={options}
             rowIndex={index}

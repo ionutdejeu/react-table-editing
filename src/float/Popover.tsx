@@ -1,132 +1,232 @@
 import * as React from 'react';
 import {
+  useFloating,
   autoUpdate,
-  flip,
-  FloatingFocusManager,
-  FloatingNode,
-  FloatingPortal,
-  FloatingTree,
   offset,
-  Placement,
+  flip,
   shift,
   useClick,
   useDismiss,
-  useFloating,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-  useId,
-  useInteractions,
   useRole,
+  useInteractions,
+  useMergeRefs,
+  Placement,
+  FloatingPortal,
+  FloatingFocusManager,
+  useId,
 } from '@floating-ui/react';
 
-import { cloneElement, isValidElement, useState } from 'react';
-
-export const Main = () => {
-  const [modal, setModal] = useState(true);
-
-  return (
-    <>
-      <h1 className="text-5xl font-bold mb-8">Popover</h1>
-      <div className="grid place-items-center border border-slate-400 rounded lg:w-[40rem] h-[20rem] mb-4"></div>
-    </>
-  );
-};
-interface Props {
-  render: (data: {
-    close: () => void;
-    labelId: string;
-    descriptionId: string;
-  }) => React.ReactNode;
+interface PopoverOptions {
+  initialOpen?: boolean;
   placement?: Placement;
   modal?: boolean;
-  children?: React.ReactElement<HTMLElement>;
-  bubbles?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-function PopoverComponent({
-  children,
-  render,
-  placement,
-  modal = true,
-  bubbles = true,
-}: Props) {
-  const [open, setOpen] = useState(false);
+export function usePopover({
+  initialOpen = false,
+  placement = 'bottom-start',
+  modal,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
+}: PopoverOptions = {}) {
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
+  const [labelId, setLabelId] = React.useState<string | undefined>();
+  const [descriptionId, setDescriptionId] = React.useState<
+    string | undefined
+  >();
 
-  const nodeId = useFloatingNodeId();
-  const { x, y, strategy, refs, context } = useFloating({
-    nodeId,
-    open,
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = setControlledOpen ?? setUncontrolledOpen;
+
+  const data = useFloating({
     placement,
+    open,
     onOpenChange: setOpen,
-    middleware: [offset(10), flip(), shift()],
     whileElementsMounted: autoUpdate,
+    middleware: [],
   });
 
-  const id = useId();
-  const labelId = `${id}-label`;
-  const descriptionId = `${id}-description`;
+  const context = data.context;
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    useClick(context),
-    useRole(context),
-    useDismiss(context, {
-      bubbles,
+  const click = useClick(context, {
+    enabled: controlledOpen == null,
+  });
+  const dismiss = useDismiss(context);
+  const role = useRole(context);
+
+  const interactions = useInteractions([click, dismiss, role]);
+
+  return React.useMemo(
+    () => ({
+      open,
+      setOpen,
+      ...interactions,
+      ...data,
+      modal,
+      labelId,
+      descriptionId,
+      setLabelId,
+      setDescriptionId,
     }),
-  ]);
-
-  return (
-    <FloatingNode id={nodeId}>
-      {isValidElement(children) &&
-        cloneElement(
-          children,
-          getReferenceProps({
-            ref: refs.setReference,
-            'data-open': open ? '' : undefined,
-          } as React.HTMLProps<Element>)
-        )}
-      <FloatingPortal>
-        {open && (
-          <FloatingFocusManager
-            context={context}
-            modal={modal}
-            children={
-              <div
-                className="bg-white border border-slate-900/10 shadow-md rounded px-4 py-6 bg-clip-padding"
-                ref={refs.setFloating}
-                style={{
-                  position: strategy,
-                  top: y ?? 0,
-                  left: x ?? 0,
-                }}
-                aria-labelledby={labelId}
-                aria-describedby={descriptionId}
-                {...getFloatingProps()}
-              >
-                {render({
-                  labelId,
-                  descriptionId,
-                  close: () => setOpen(false),
-                })}
-              </div>
-            }
-          ></FloatingFocusManager>
-        )}
-      </FloatingPortal>
-    </FloatingNode>
+    [open, setOpen, interactions, data, modal, labelId, descriptionId]
   );
 }
 
-export function Popover(props: Props) {
-  const parentId = useFloatingParentNodeId();
+type ContextType =
+  | (ReturnType<typeof usePopover> & {
+      setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
+      setDescriptionId: React.Dispatch<
+        React.SetStateAction<string | undefined>
+      >;
+    })
+  | null;
 
-  // This is a root, so we wrap it with the tree
-  if (parentId === null) {
-    return (
-      <FloatingTree>
-        <PopoverComponent {...props} />
-      </FloatingTree>
+const PopoverContext = React.createContext<ContextType>(null);
+
+export const usePopoverContext = () => {
+  const context = React.useContext(PopoverContext);
+
+  if (context == null) {
+    throw new Error('Popover components must be wrapped in <Popover />');
+  }
+
+  return context;
+};
+
+export function Popover({
+  children,
+  modal = false,
+  ...restOptions
+}: {
+  children: React.ReactNode;
+} & PopoverOptions) {
+  // This can accept any props as options, e.g. `placement`,
+  // or other positioning options.
+  const popover = usePopover({ modal, ...restOptions });
+  return (
+    <div>
+      <PopoverContext.Provider value={popover}>
+        {children}
+      </PopoverContext.Provider>
+    </div>
+  );
+}
+
+interface PopoverTriggerProps {
+  children: React.ReactNode;
+  asChild?: boolean;
+}
+
+export const PopoverTrigger = React.forwardRef<
+  HTMLElement,
+  React.HTMLProps<HTMLElement> & PopoverTriggerProps
+>(function PopoverTrigger({ children, asChild = false, ...props }, propRef) {
+  const context = usePopoverContext();
+  const childrenRef = (children as any).ref;
+  const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
+
+  // `asChild` allows the user to pass any element as the anchor
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(
+      children,
+      context.getReferenceProps({
+        ref,
+      })
     );
   }
 
-  return <PopoverComponent {...props} />;
-}
+  return (
+    <div
+      ref={ref}
+      // The user can style the trigger based on the state
+      data-state={context.open ? 'open' : 'closed'}
+      {...context.getReferenceProps(props)}
+    >
+      {children}
+    </div>
+  );
+});
+
+export const PopoverContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLProps<HTMLDivElement>
+>(function PopoverContent({ style, ...props }, propRef) {
+  const { context: floatingContext, ...context } = usePopoverContext();
+  const ref = useMergeRefs([context.refs.setFloating, propRef]);
+
+  if (!floatingContext.open) return null;
+
+  return (
+    <FloatingPortal>
+      <FloatingFocusManager context={floatingContext} modal={context.modal}>
+        <div
+          ref={ref}
+          style={{ ...context.floatingStyles, ...style }}
+          aria-labelledby={context.labelId}
+          aria-describedby={context.descriptionId}
+          {...context.getFloatingProps(props)}
+        >
+          {props.children}
+        </div>
+      </FloatingFocusManager>
+    </FloatingPortal>
+  );
+});
+
+export const PopoverHeading = React.forwardRef<
+  HTMLHeadingElement,
+  React.HTMLProps<HTMLHeadingElement>
+>(function PopoverHeading(props, ref) {
+  const { setLabelId } = usePopoverContext();
+  const id = useId();
+
+  // Only sets `aria-labelledby` on the Popover root element
+  // if this component is mounted inside it.
+  React.useLayoutEffect(() => {
+    setLabelId(id);
+    return () => setLabelId(undefined);
+  }, [id, setLabelId]);
+
+  return (
+    <h2 {...props} ref={ref} id={id}>
+      {props.children}
+    </h2>
+  );
+});
+
+export const PopoverDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLProps<HTMLParagraphElement>
+>(function PopoverDescription(props, ref) {
+  const { setDescriptionId } = usePopoverContext();
+  const id = useId();
+
+  // Only sets `aria-describedby` on the Popover root element
+  // if this component is mounted inside it.
+  React.useLayoutEffect(() => {
+    setDescriptionId(id);
+    return () => setDescriptionId(undefined);
+  }, [id, setDescriptionId]);
+
+  return <div {...props} ref={ref} id={id} />;
+});
+
+export const PopoverClose = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function PopoverClose(props, ref) {
+  const { setOpen } = usePopoverContext();
+  return (
+    <button
+      type="button"
+      ref={ref}
+      {...props}
+      onClick={event => {
+        props.onClick?.(event);
+        setOpen(false);
+      }}
+    />
+  );
+});

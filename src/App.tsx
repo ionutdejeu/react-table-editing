@@ -22,7 +22,7 @@ interface Action {
 }
 
 interface Column {
-  id: string;
+  id: string | number;
   label: string;
   accessor: string;
   dataType: string;
@@ -229,7 +229,6 @@ const App: React.FC = () => {
         dispatch={dispatch}
         skipReset={state.skipReset}
       />
-      <div id="popper-portal"></div>
     </div>
   );
 };

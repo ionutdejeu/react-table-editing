@@ -222,37 +222,33 @@ export const MenuComponent = React.forwardRef<
           isOpen,
         }}
       >
-        <FloatingList
-          elementsRef={elementsRef}
-          labelsRef={labelsRef}
-          children={
-            isOpen && (
-              <FloatingPortal>
-                <FloatingFocusManager
-                  context={context}
-                  modal={false}
-                  initialFocus={isNested ? -1 : 0}
-                  returnFocus={!isNested}
-                  children={
-                    <div
-                      ref={refs.setFloating}
-                      className="flex flex-col rounded bg-white shadow-lg outline-none p-1 border border-slate-900/10 bg-clip-padding"
-                      style={{
-                        position: strategy,
-                        top: y ?? 0,
-                        left: x ?? 0,
-                        width: 'max-content',
-                      }}
-                      {...getFloatingProps()}
-                    >
-                      {children}
-                    </div>
-                  }
-                ></FloatingFocusManager>
-              </FloatingPortal>
-            )
-          }
-        ></FloatingList>
+        <FloatingList elementsRef={elementsRef} labelsRef={labelsRef}>
+          {isOpen && (
+            <FloatingPortal>
+              <FloatingFocusManager
+                context={context}
+                modal={false}
+                initialFocus={isNested ? -1 : 0}
+                returnFocus={!isNested}
+                children={
+                  <div
+                    ref={refs.setFloating}
+                    className="flex flex-col rounded bg-white shadow-lg outline-none p-1 border border-slate-900/10 bg-clip-padding"
+                    style={{
+                      position: strategy,
+                      top: y ?? 0,
+                      left: x ?? 0,
+                      width: 'max-content',
+                    }}
+                    {...getFloatingProps()}
+                  >
+                    {children}
+                  </div>
+                }
+              ></FloatingFocusManager>
+            </FloatingPortal>
+          )}
+        </FloatingList>
       </MenuContext.Provider>
     </FloatingNode>
   );

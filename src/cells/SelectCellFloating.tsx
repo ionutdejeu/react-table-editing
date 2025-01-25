@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { usePopper } from 'react-popper';
 import Badge from '../Badge';
 import { grey } from '../colors';
 import PlusIcon from '../img/Plus';
 import { ActionTypes, randomColor } from '../utils';
-import { computePosition, autoPlacement } from '@floating-ui/dom';
 import { useFloating } from '@floating-ui/react';
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeading,
+  PopoverTrigger,
+} from '../float/Popover';
 
 interface Option {
   label: string;
@@ -21,7 +26,7 @@ interface SelectCellProps {
   dataDispatch: React.Dispatch<any>;
 }
 
-const SelectCell: React.FC<SelectCellProps> = ({
+const SelectCellFloating: React.FC<SelectCellProps> = ({
   initialValue,
   options,
   columnId,
@@ -38,10 +43,6 @@ const SelectCell: React.FC<SelectCellProps> = ({
 
   const { refs } = useFloating({});
 
-  const { styles, attributes } = usePopper(selectRef, selectPop, {
-    placement: 'bottom-start',
-    strategy: 'fixed',
-  });
   const [value, setValue] = useState({ value: initialValue, update: false });
 
   useEffect(() => {
@@ -65,7 +66,7 @@ const SelectCell: React.FC<SelectCellProps> = ({
     }
   }, [addSelectRef, showAdd]);
 
-  const getColor = () => {
+  const getColor = (): string => {
     const match = options.find(option => option.label === value.value);
     return (match && match.backgroundColor) || grey(200);
   };
@@ -107,34 +108,27 @@ const SelectCell: React.FC<SelectCellProps> = ({
 
   return (
     <>
-      <div
-        ref={setSelectRef}
-        className="cell-padding d-flex cursor-default align-items-center flex-1"
-        onClick={() => setShowSelect(true)}
-      >
-        {value.value && (
-          <Badge value={value.value} backgroundColor={getColor()} />
-        )}
-      </div>
-      {showSelect && (
-        <div className="overlay" onClick={() => setShowSelect(false)} />
-      )}
-      {showSelect &&
-        createPortal(
-          <div
-            className="shadow-5 bg-white border-radius-md"
-            ref={setSelectPop}
-            {...attributes.popper}
-            style={{
-              ...styles.popper,
-              zIndex: 4,
-              minWidth: 200,
-              maxWidth: 320,
-              maxHeight: 400,
-              padding: '0.75rem',
-              overflow: 'auto',
-            }}
-          >
+      <Popover open={showSelect} onOpenChange={setShowSelect}>
+        <PopoverTrigger onClick={() => setShowSelect(v => !v)}>
+          <div className="cell-padding d-flex cursor-default align-items-center flex-1">
+            {value.value && (
+              <Badge value={value.value} backgroundColor={getColor()} />
+            )}
+          </div>
+        </PopoverTrigger>
+        <PopoverContent
+          className="Popover shadow-5 bg-white border-radius-md"
+          style={{
+            zIndex: 4,
+            minWidth: 200,
+            maxWidth: 320,
+            maxHeight: 400,
+            padding: '0.75rem',
+            overflow: 'auto',
+          }}
+        >
+          <PopoverHeading>Select</PopoverHeading>
+          <PopoverDescription>
             <div
               className="d-flex flex-wrap-wrap"
               style={{ marginTop: '-0.5rem' }}
@@ -172,21 +166,19 @@ const SelectCell: React.FC<SelectCellProps> = ({
                 className="cursor-pointer mr-5 mt-5"
                 onClick={handleAddOption}
               >
-                <Badge
-                  value={
-                    <span className="svg-icon-sm svg-text">
-                      <PlusIcon />
-                    </span>
-                  }
-                  backgroundColor={grey(200)}
-                />
+                <Badge backgroundColor={grey(200)}>
+                  <span className="svg-icon-sm svg-text">
+                    <PlusIcon />
+                  </span>
+                </Badge>
               </div>
             </div>
-          </div>,
-          document.querySelector('#popper-portal')
-        )}
+          </PopoverDescription>
+          <PopoverClose>Close</PopoverClose>
+        </PopoverContent>
+      </Popover>
     </>
   );
 };
 
-export default SelectCell;
+export default SelectCellFloating;

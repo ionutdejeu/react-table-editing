@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface BadgeProps {
-  value: string;
+  value?: string;
   children?: React.JSX.Element;
   backgroundColor: string;
 }
