@@ -1,4 +1,4 @@
-name: Editable React Table - Master CI
+name: React Table Editing - Master CI
 
 on:
   push:
